@@ -112,7 +112,6 @@ const InteractiveMap = () => {
         addTube();
 
         // debug camera
-
         cameraEye = new THREE.Mesh( new THREE.SphereGeometry( 5 ), new THREE.MeshBasicMaterial( { color: 0xdddddd } ) );
         parent.add( cameraEye );
 
@@ -120,7 +119,6 @@ const InteractiveMap = () => {
         cameraEye.visible = params.cameraHelper;
 
         // renderer
-
         renderer = new THREE.WebGLRenderer( { antialias: true } );
         renderer.setPixelRatio( window.devicePixelRatio );
         renderer.setSize( window.innerWidth, window.innerHeight );
@@ -213,7 +211,7 @@ const InteractiveMap = () => {
         binormal.multiplyScalar( pickt - pick ).add( tubeGeometry.binormals[ pick ] );
         // binormal.multiplyScalar( pickt - pick );
         spline.getTangentAt( t, direction );
-        const offset = 0;
+        const offset = 15;
 
         // v1 = [1, 2, 3]
         // v2 = [5, 6, 7]
@@ -230,9 +228,13 @@ const InteractiveMap = () => {
         // using arclength for stablization in look ahead
         spline.getPointAt( ( t + 30  / spline.getLength() ) % 1, lookAt );
         lookAt.multiplyScalar( params.scale );
+        // lookAt.add(normal.clone().multiplyScalar( offset )); // Makes camera look straight ahead
 
         // camera orientation 2 - up orientation via normal
-        if ( ! params.lookAhead ) lookAt.copy( position ).add( direction );
+        if ( ! params.lookAhead ) {
+            lookAt.copy( position ).add( direction );
+        }
+
         splineCamera.matrix.lookAt( splineCamera.position, lookAt, normal );
         splineCamera.quaternion.setFromRotationMatrix( splineCamera.matrix );
 
@@ -241,10 +243,8 @@ const InteractiveMap = () => {
         renderer.render( scene, params.animationView === true ? splineCamera : camera );
     }
 
-    function animate() {
-
+    const animate = () => {
         requestAnimationFrame( animate );
-
         render();
     }
 
@@ -255,8 +255,7 @@ const InteractiveMap = () => {
 
     return (
         <div>
-            init();
-            animate();
+
         </div>
     );
 };
