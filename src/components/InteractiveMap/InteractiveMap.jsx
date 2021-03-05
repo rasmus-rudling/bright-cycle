@@ -34,30 +34,29 @@ const InteractiveMap = () => {
         closed: true,
         animationView: false,
         lookAhead: false,
-        cameraHelper: false,
+        cameraHelper: true,
     };
+
+    const spline = splines[ params.spline ];
 
     const material = new THREE.MeshLambertMaterial( { color: 0xff00ff } );
 
     const wireframeMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, opacity: 0.3, wireframe: true, transparent: true } );
 
-    function addTube() {
-
+    const addTube = () => {
         if ( mesh !== undefined ) {
-
             parent.remove( mesh );
             mesh.geometry.dispose();
-
         }
 
         const extrudePath = splines[ params.spline ];
-
         tubeGeometry = new THREE.TubeGeometry( extrudePath, params.extrusionSegments, 2, params.radiusSegments, params.closed );
-
         addGeometry( tubeGeometry );
-
         setScale();
+    }
 
+    const getPath = () => {
+        return
     }
 
     function setScale() {
@@ -82,7 +81,7 @@ const InteractiveMap = () => {
 
     }
 
-    function init() {
+    const init = () => {
         // camera
 
         camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.01, 10000 );
@@ -127,13 +126,6 @@ const InteractiveMap = () => {
         renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( renderer.domElement );
 
-        // stats
-
-        stats = new Stats();
-        document.body.appendChild( stats.dom );
-
-        // dat.GUI
-
         const gui = new GUI( { width: 300 } );
 
         const folderGeometry = gui.addFolder( 'Geometry' );
@@ -157,7 +149,7 @@ const InteractiveMap = () => {
             addTube();
 
         } );
-        folderGeometry.add( params, 'closed' ).onChange( function () {
+        folderGeometry.add( params, 'closed' ).onChange(() => {
 
             addTube();
 
@@ -190,7 +182,7 @@ const InteractiveMap = () => {
 
     }
 
-    function onWindowResize() {
+    const onWindowResize = () => {
 
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -199,46 +191,47 @@ const InteractiveMap = () => {
 
     }
 
-    function render() {
+    const render = () => {
 
         // animate camera along spline
-
         const time = Date.now();
         const looptime = 20 * 1000;
         const t = ( time % looptime ) / looptime;
 
-        tubeGeometry.parameters.path.getPointAt( t, position );
+        spline.getPointAt( t, position );
         position.multiplyScalar( params.scale );
 
         // interpolation
-
-        const segments = tubeGeometry.tangents.length;
+        console.log(tubeGeometry);
+        const segments = tubeGeometry.tangents.length; // Total number of segments
+        console.log(segments);
         const pickt = t * segments;
         const pick = Math.floor( pickt );
         const pickNext = ( pick + 1 ) % segments;
 
         binormal.subVectors( tubeGeometry.binormals[ pickNext ], tubeGeometry.binormals[ pick ] );
         binormal.multiplyScalar( pickt - pick ).add( tubeGeometry.binormals[ pick ] );
+        // binormal.multiplyScalar( pickt - pick );
+        spline.getTangentAt( t, direction );
+        const offset = 0;
 
-        tubeGeometry.parameters.path.getTangentAt( t, direction );
-        const offset = 15;
+        // v1 = [1, 2, 3]
+        // v2 = [5, 6, 7]
+        // v1 - v2 = ?
 
         normal.copy( binormal ).cross( direction );
 
-        // we move on a offset on its binormal
-
+        // we move on a offset on its normal
         position.add( normal.clone().multiplyScalar( offset ) );
 
         splineCamera.position.copy( position );
         cameraEye.position.copy( position );
 
         // using arclength for stablization in look ahead
-
-        tubeGeometry.parameters.path.getPointAt( ( t + 30 / tubeGeometry.parameters.path.getLength() ) % 1, lookAt );
+        spline.getPointAt( ( t + 30  / spline.getLength() ) % 1, lookAt );
         lookAt.multiplyScalar( params.scale );
 
         // camera orientation 2 - up orientation via normal
-
         if ( ! params.lookAhead ) lookAt.copy( position ).add( direction );
         splineCamera.matrix.lookAt( splineCamera.position, lookAt, normal );
         splineCamera.quaternion.setFromRotationMatrix( splineCamera.matrix );
@@ -246,18 +239,13 @@ const InteractiveMap = () => {
         cameraHelper.update();
 
         renderer.render( scene, params.animationView === true ? splineCamera : camera );
-
     }
-
-    //
 
     function animate() {
 
         requestAnimationFrame( animate );
 
         render();
-        stats.update();
-
     }
 
     useEffect(() => {
