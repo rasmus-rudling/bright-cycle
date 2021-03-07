@@ -20,8 +20,18 @@ const InteractiveMap = () => {
     const lookAt = new THREE.Vector3();
 
     // Keep a dictionary of Curve instances
+
+
+    const curve = new THREE.SplineCurve( [
+        new THREE.Vector2( -10, 0 ),
+        new THREE.Vector2( -5, 5 ),
+        new THREE.Vector2( 0, 0 ),
+        new THREE.Vector2( 5, -5 ),
+        new THREE.Vector2( 10, 0 )
+    ] );
+
     const splines = {
-        GrannyKnot: new Curves.GrannyKnot()
+        GrannyKnot: new Curves.FigureEightPolynomialKnot()
     };
 
     let parent, tubeGeometry, mesh;
@@ -31,7 +41,7 @@ const InteractiveMap = () => {
         scale: 4,
         extrusionSegments: 100,
         radiusSegments: 3,
-        closed: true,
+        closed: false,
         animationView: false,
         lookAhead: false,
         cameraHelper: true,

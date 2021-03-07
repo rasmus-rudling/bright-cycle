@@ -1,11 +1,13 @@
 import logo from './logo.svg';
 import './App.css';
-import InteractiveMap from './components/InteractiveMap/InteractiveMap';
+import InteractiveMap from './components/InteractiveMap/ThreeJSExample/InteractiveMap';
+import BasicBoxExample from './components/InteractiveMap/BasicBoxExample/BasicBoxExample';
 
 const App = () => {
     return (
         <div className="App">
-            <InteractiveMap />
+            {/*<InteractiveMap />*/}
+            <BasicBoxExample />
         </div>
     );
 }
