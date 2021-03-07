@@ -70,11 +70,8 @@ const InteractiveMap = () => {
     }
 
     function setScale() {
-
         mesh.scale.set( params.scale, params.scale, params.scale );
-
     }
-
 
     const addGeometry = geometry => {
         // 3D shape
@@ -82,7 +79,6 @@ const InteractiveMap = () => {
         const wireframe = new THREE.Mesh( geometry, wireframeMaterial );
         mesh.add( wireframe );
         parent.add( mesh );
-
     }
 
     const animateCamera = () => {
@@ -93,23 +89,19 @@ const InteractiveMap = () => {
 
     const init = () => {
         // camera
-
         camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.01, 10000 );
         camera.position.set( 0, 50, 500 );
 
         // scene
-
         scene = new THREE.Scene();
         scene.background = new THREE.Color( 0xf0f0f0 );
 
         // light
-
         const light = new THREE.DirectionalLight( 0xffffff );
         light.position.set( 0, 0, 1 );
         scene.add( light );
 
         // tube
-
         parent = new THREE.Object3D();
         scene.add( parent );
 
